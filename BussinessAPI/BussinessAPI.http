@@ -1,0 +1,6 @@
+@BussinessAPI_HostAddress = http://localhost:5148
+
+GET {{BussinessAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
