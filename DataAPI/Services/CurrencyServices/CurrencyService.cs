@@ -8,7 +8,8 @@ namespace DataAPI.Services.CurrencyServices
     public class CurrencyService : ICurrencyService
     {
         private readonly ICurrencyRepository _currencyRepository;
-        public CurrencyService(ICurrencyRepository currencyRepository)
+
+        public CurrencyService(ICurrencyRepository currencyRepository )
         {
             _currencyRepository = currencyRepository;
         }
@@ -28,20 +29,6 @@ namespace DataAPI.Services.CurrencyServices
             var currencies = await _currencyRepository.GetCurrencyByCurrencyCode(currencyCode);
             return currencies;
         }
-
-        //public async Task<IEnumerable<CurrencyRate>> GetCurrencyByCurrencyCode(string currencyCode)
-        //{
-        //    string cacheKey = "all_currency_rates";
-        //    var cachedData = await _cache.GetStringAsync(cacheKey);
-
-
-        //    _logger.LogInformation("Cache hit: Returning data from cache.");
-        //    var currencyRates = JsonConvert.DeserializeObject<IEnumerable<CurrencyRate>>(cachedData);
-
-        //    var filteredCurrencyRates = currencyRates.Where(rate => rate.CurrencyCode == currencyCode);
-
-        //    return filteredCurrencyRates;
-        //}
         public async Task<CurrencyRate> AddCurrency(CurrencyRate currencyRate)
         {
             var addedCurrency = await _currencyRepository.Add(currencyRate);
@@ -78,13 +65,6 @@ namespace DataAPI.Services.CurrencyServices
                 }
                 currentDate = currentDate.AddDays(1);
             }
-            //var cacheKey = "all_currency_rates";
-            //var serializedRates = JsonConvert.SerializeObject(allRates);
-            //var options = new DistributedCacheEntryOptions
-            //{
-            //    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24) // Adjust expiration as needed
-            //};
-            //await _cache.SetStringAsync(cacheKey, serializedRates, options);
         }
         private async Task<List<CurrencyRate>> FetchCurrencyRatesByDate(DateTime date)
         {
@@ -98,7 +78,6 @@ namespace DataAPI.Services.CurrencyServices
                     var response = await client.GetStringAsync(url);
                     XDocument doc = XDocument.Parse(response);
 
-                    // XML içerisindeki tüm döviz kurları bilgilerini al
                     var currencyElements = doc.Descendants("Currency");
                     foreach (var element in currencyElements)
                     {
@@ -129,20 +108,13 @@ namespace DataAPI.Services.CurrencyServices
 
             return currencyRates;
         }
+        public async Task RemoveCurrenciesBeforeTwoMonth()
+        {
+            await _currencyRepository.RemoveCurrenciesBeforeTwoMonth();
+        }
         public async Task DeleteCurrency(int id)
         {
             await _currencyRepository.Delete(id);
         }
-
-        //public async Task<IEnumerable<CurrencyRate>> GetAllCurrencyWithCache()
-        //{
-        //    string cacheKey = "all_currency_rates";
-
-        //    var cachedData = await _cache.GetStringAsync(cacheKey);
-
-        //    _logger.LogInformation("Cache hit: Returning data from cache.");
-        //    var currencyRates = JsonConvert.DeserializeObject<IEnumerable<CurrencyRate>>(cachedData);
-        //    return currencyRates;
-        //}
     }
 }

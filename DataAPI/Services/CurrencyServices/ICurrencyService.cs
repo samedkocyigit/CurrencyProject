@@ -11,6 +11,7 @@ namespace DataAPI.Services.CurrencyServices
         Task<CurrencyRate> UpdateCurrency(CurrencyRate currencyRate);
         Task DeleteCurrency(int currencyId);
         Task FetchCurrencyRate(DateTime statDate, DateTime endDate);
+        Task RemoveCurrenciesBeforeTwoMonth();
 
     }
 }

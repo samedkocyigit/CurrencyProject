@@ -14,8 +14,11 @@
 **/azds.yaml
 **/bin
 **/charts
+<<<<<<< HEAD
 **/docker-compose*
 **/Dockerfile*
+=======
+>>>>>>> 447d0a3 (Update)
 **/node_modules
 **/npm-debug.log
 **/obj
@@ -27,4 +30,8 @@ README.md
 !.git/HEAD
 !.git/config
 !.git/packed-refs
+<<<<<<< HEAD
 !.git/refs/heads/**
+=======
+!.git/refs/heads/**
+>>>>>>> 447d0a3 (Update)

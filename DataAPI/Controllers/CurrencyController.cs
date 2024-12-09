@@ -48,14 +48,11 @@ namespace DataAPI.Controllers
             var currencies = await _currencyService.GetCurrencyByCurrencyCode(currencyCode);
             return Ok(currencies);
         }
-
-        //[HttpGet("fetch-all-currencies-with-cache")]
-        //public async Task<IActionResult> FetchCurrenciesWithCache()
-        //{
-        //    var currencies = await _currencyService.GetAllCurrencyWithCache();
-        //    return Ok(currencies);
-        //}
-
-
+        [HttpDelete("remove-before-two-month")]
+        public async Task<IActionResult> RemoveCurrenciesBeforeTwoMonth()
+        {
+            await _currencyService.RemoveCurrenciesBeforeTwoMonth();
+            return Ok();
+        }
     }
 }

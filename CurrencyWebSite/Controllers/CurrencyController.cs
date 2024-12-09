@@ -12,17 +12,15 @@ public class CurrencyController : Controller
         _httpClient = httpClient;
     }
 
-    // Index method to load the page
     public IActionResult Index()
     {
         return View();
     }
 
-    // AJAX method to get the exchange rate from the Business API
-    [HttpPost]
+    [HttpGet()]
     public async Task<IActionResult> GetExchangeRate(string currencyCode)
     {
-        var response = await _httpClient.GetAsync($"https://localhost:7048/api/exchange-rate/{currencyCode}");
+        var response = await _httpClient.GetAsync($"http://businessapi-container:81/api/Currency/{currencyCode}");
 
         if (response.IsSuccessStatusCode)
         {
