@@ -1,0 +1,162 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Currency Exchange Rates</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        #chartContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: auto;
+            border: 1px solid #ccc;
+            background-color: #ffffff;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        #chart {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .dot {
+            fill: blue;
+        }
+
+        .line {
+            stroke: steelblue;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .axis text {
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5 text-center">Currency Exchange Rates</h1>
+
+        <div class="form-group">
+            <label for="currencyCode">Enter Currency Code (e.g., USD, EUR):</label>
+            <input type="text" id="currencyCode" class="form-control" placeholder="Enter currency code..." />
+            <button id="searchBtn" class="btn btn-primary mt-3">Search</button>
+        </div>
+
+        <div id="chartContainer" class="mt-5">
+            <svg id="chart"></svg>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $("#searchBtn").click(function () {
+                const currencyCode = $("#currencyCode").val().trim();
+
+                if (!currencyCode) {
+                    alert("Please enter a currency code.");
+                    return;
+                }
+
+                $.ajax({
+                    url: '/Currency/GetExchangeRate',
+                    type: 'GET',
+                    data: { currencyCode: currencyCode },
+                    success: function (response) {
+                        if (response.error) {
+                            alert(response.error);
+                        } else {
+                            const chartData = JSON.parse(response);
+
+                            console.log(chartData);
+
+                            generateChart(chartData, { width: 600, height: 400 });
+                        }
+                    },
+                    error: function () {
+                        alert("Error fetching data from the API.");
+                    }
+                });
+            });
+        });
+
+        function generateChart(data, dimensions) {
+            d3.select("#chart").selectAll("*").remove();
+
+            const margin = { top: 20, right: 30, bottom: 50, left: 50 };
+            const width = dimensions.width - margin.left - margin.right;
+            const height = dimensions.height - margin.top - margin.bottom;
+
+            const svg = d3.select("#chart")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            data.forEach(d => {
+                d.date = new Date(d.date);
+            });
+            data.sort((a, b) => a.date - b.date);
+
+            const xScale = d3.scaleTime()
+                .domain(d3.extent(data, d => d.date))
+                .range([0, width]);
+
+            const yScale = d3.scaleLinear()
+                .domain([d3.min(data, d => d.forexBuying), d3.max(data, d => d.forexBuying)])
+                .range([height, 0]);
+
+            const line = d3.line()
+                .x(d => xScale(d.date))
+                .y(d => yScale(d.forexBuying));
+
+            svg.append("path")
+                .data([data])
+                .attr("class", "line")
+                .attr("d", line);
+
+            
+            const xAxis = d3.axisBottom(xScale)
+                .ticks(d3.timeDay.every(5)) 
+                .tickFormat(d3.timeFormat("%b %d")); 
+
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(xAxis)
+                .selectAll("text")
+                .attr("transform", "rotate(-45)") 
+                .style("text-anchor", "end");
+
+            svg.append("g")
+                .call(d3.axisLeft(yScale));
+
+            svg.selectAll(".dot")
+                .data(data)
+                .enter().append("circle")
+                .attr("class", "dot")
+                .attr("cx", d => xScale(d.date))
+                .attr("cy", d => yScale(d.forexBuying))
+                .attr("r", 3);
+        }
+
+    </script>
+</body>
+</html>

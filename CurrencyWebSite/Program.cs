@@ -5,6 +5,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddHttpClient();
 
+builder.WebHost.UseUrls("http://0.0.0.0:8082");
+
 
 var app = builder.Build();
 
@@ -25,6 +27,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Currency}/{action=Index}/{id?}");
 
 app.Run();

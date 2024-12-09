@@ -26,5 +26,21 @@ namespace DataAPI.Infrastructure.CurrencyRepository
                 .FirstOrDefaultAsync(x => x.CurrencyCode == currencyCode && x.Date.Date == date.Date);
 
         }
+        public async Task<IEnumerable<CurrencyRate>> GetCurrencies()
+        {
+
+            DateTime twoWeeksAgo = DateTime.UtcNow.AddDays(-14).ToUniversalTime();
+            return await _context.CurrencyRates
+                .OrderBy(c=>c.ForexBuying)
+                .Where(c=>c.ForexBuying>30.0m && c.Date.Date>=twoWeeksAgo && c.CurrencyCode =="USD")
+                .ToListAsync();
+        }
+        public async Task RemoveCurrenciesBeforeTwoMonth()
+        {
+            DateTime twoMonthAgo = DateTime.Today.AddMonths(-2).ToUniversalTime();
+            var oldCurrencies = _context.CurrencyRates.Where(x=> x.Date < twoMonthAgo);
+            _context.CurrencyRates.RemoveRange(oldCurrencies);
+            await _context.SaveChangesAsync();
+        }
     }
 }
